@@ -1,0 +1,3 @@
+fastapi
+uvicorn[standard]
+fastrtc[vad,stt,tts]
