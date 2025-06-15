@@ -13,7 +13,7 @@ WORKDIR /app
 RUN git clone https://github.com/kyutai-labs/moshi.git moshi_repo
 
 # Install Moshi dependencies first
-WORKDIR /app/moshi_repo
+WORKDIR /app/moshi_repo/moshi
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -e .
 
@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Set environment variables
 ENV HF_REPO=kyutai/moshiko-pytorch-bf16
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app/moshi_repo:$PYTHONPATH
+ENV PYTHONPATH=/app/moshi_repo/moshi:$PYTHONPATH
 # HF_TOKEN will be provided at runtime via Koyeb secrets
 
 # Expose port

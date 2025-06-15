@@ -49,7 +49,7 @@ def run_moshi_server():
     """Run Moshi server in a separate thread"""
     try:
         # Add the moshi repo to Python path and run server
-        os.system("cd /app/moshi_repo && python -m moshi.server --gradio-tunnel --hf-repo $HF_REPO")
+        os.system("cd /app/moshi_repo/moshi && python -m moshi.server --gradio-tunnel --hf-repo $HF_REPO")
     except Exception as e:
         print(f"Moshi server failed to start: {e}")
 
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     # Try to start Moshi server in background if available
     try:
         import sys
-        sys.path.insert(0, '/app/moshi_repo')
+        sys.path.insert(0, '/app/moshi_repo/moshi')
         import moshi.server
         print("Starting Moshi server in background...")
         moshi_thread = threading.Thread(target=run_moshi_server, daemon=True)
