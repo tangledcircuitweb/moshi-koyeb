@@ -47,17 +47,25 @@ async def info():
 
 def run_moshi_server():
     """Run Moshi server in a separate thread"""
-    # This runs the original Moshi Gradio server
-    os.system("python -m moshi.server --gradio-tunnel --hf-repo $HF_REPO")
+    try:
+        # Add the moshi repo to Python path and run server
+        os.system("cd /app/moshi_repo && python -m moshi.server --gradio-tunnel --hf-repo $HF_REPO")
+    except Exception as e:
+        print(f"Moshi server failed to start: {e}")
 
 if __name__ == "__main__":
-    # Start Moshi server in background thread
-    moshi_thread = threading.Thread(target=run_moshi_server, daemon=True)
-    moshi_thread.start()
+    # Try to start Moshi server in background if available
+    try:
+        import sys
+        sys.path.insert(0, '/app/moshi_repo')
+        import moshi.server
+        print("Starting Moshi server in background...")
+        moshi_thread = threading.Thread(target=run_moshi_server, daemon=True)
+        moshi_thread.start()
+        import time
+        time.sleep(5)
+    except ImportError as e:
+        print(f"Moshi not available: {e} - running FastRTC server only")
     
-    # Give Moshi time to start
-    import time
-    time.sleep(5)
-    
-    # Run FastAPI with FastRTC
-    uvicorn.run(app, host="0.0.0.0", port=8998)
+    # Run FastAPI with FastRTC (this will work even without Moshi)
+    uvicorn.run("server:app", host="0.0.0.0", port=8998)

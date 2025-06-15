@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -10,23 +10,28 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Clone Moshi repository
-RUN git clone https://github.com/kyutai-labs/moshi.git .
+RUN git clone https://github.com/kyutai-labs/moshi.git moshi_repo
 
-# Install Python dependencies
+# Install Moshi dependencies first
+WORKDIR /app/moshi_repo
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install --no-cache-dir -e .
-RUN pip install --no-cache-dir gradio fastrtc[vad,stt,tts]
+
+# Go back to app directory and copy our files
+WORKDIR /app
+COPY . .
+
+# Install our additional dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Set environment variables
 ENV HF_REPO=kyutai/moshiko-pytorch-bf16
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app/moshi_repo:$PYTHONPATH
 # HF_TOKEN will be provided at runtime via Koyeb secrets
-
-# Create a custom server script with FastRTC integration
-COPY server.py /app/custom_server.py
 
 # Expose port
 EXPOSE 8998
 
 # Run the server
-CMD ["python", "/app/custom_server.py"]
+CMD ["python", "server.py"]
